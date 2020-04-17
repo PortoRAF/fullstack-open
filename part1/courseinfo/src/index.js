@@ -1,28 +1,37 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 
 const App = () => {
-  const course = "Half Stack application development";
-  const content = [
-    {
-      part: "Fundamentals of React",
-      exercises: 10,
-    },
-    {
-      part: "Using props to pass data",
-      exercises: 7,
-    },
-    {
-      part: "State of a component",
-      exercises: 14,
-    },
-  ];
+  const course = {
+    name: "Half Stack application development",
+    parts: [
+      {
+        name: "Fundamentals of React",
+        exercises: 10,
+      },
+      {
+        name: "Using props to pass data",
+        exercises: 7,
+      },
+      {
+        name: "State of a component",
+        exercises: 14,
+      },
+    ],
+  };
+
+  const [counter, setCounter] = useState(0);
+
+  setTimeout(() => {
+    setCounter(counter + 1);
+  }, 1000);
 
   return (
     <div>
-      <Header course={course} />
-      <Content content={content} />
-      <Total content={content} />
+      <Header course={course.name} />
+      <Content parts={course.parts} />
+      <Total parts={course.parts} />
+      <p>{counter}</p>
     </div>
   );
 };
@@ -32,20 +41,20 @@ const Header = (props) => {
 };
 
 const Content = (props) => {
-  return props.content.map((object, i) => <Part key={i} content={object} />);
+  return props.parts.map((part, i) => <Part key={i} part={part} />);
 };
 
 const Part = (props) => {
   return (
     <p>
-      {props.content.part}: {props.content.exercises}
+      {props.part.name}: {props.part.exercises}
     </p>
   );
 };
 
 const Total = (props) => {
   let total = 0;
-  props.content.forEach((object) => (total += object.exercises));
+  props.parts.forEach((part) => (total += part.exercises));
   return <p>Number of exercises: {total}</p>;
 };
 
