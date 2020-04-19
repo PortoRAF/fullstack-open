@@ -1,44 +1,73 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 
-const Button = ({ onClick, text }) => {
-  return <button onClick={onClick}>{text}</button>;
-};
+const Note = ({ note }) => <li>{note.content}</li>;
 
-const History = ({ allClicks }) => {
-  if (allClicks.length === 0) {
-    return <div>the app is used by pressing the buttons</div>;
-  }
+const App = (props) => {
+  const [notes, setNotes] = useState(props.notes);
+  const [newNote, setNewNote] = useState("a new note...");
+  const [showAll, setShowAll] = useState(true);
 
-  return <div>button pressed history: {allClicks.join(" ")}</div>;
-};
+  const addNote = (event) => {
+    event.preventDefault();
+    const noteObject = {
+      content: newNote,
+      date: new Date().toISOString(),
+      important: Math.random() > 0.5,
+      id: notes.length + 1,
+    };
 
-const App = () => {
-  const [left, setLeft] = useState(0);
-  const [right, setRight] = useState(0);
-  const [allClicks, setAll] = useState([]);
-
-  const handleLeftClick = () => {
-    setAll(allClicks.concat("L"));
-    setLeft(left + 1);
+    setNotes(notes.concat(noteObject));
+    setNewNote("");
   };
 
-  const handleRightClick = () => {
-    setAll(allClicks.concat("R"));
-    setRight(right + 1);
+  const handleNoteChange = (event) => {
+    console.log(event.target.value);
+    setNewNote(event.target.value);
   };
+
+  const notesToShow = showAll ? notes : notes.filter((note) => note.important);
 
   return (
     <div>
+      <h1>Notes</h1>
       <div>
-        {left}
-        <Button onClick={handleLeftClick} text="left" />
-        <Button onClick={handleRightClick} text="right" />
-        {right}
-        <History allClicks={allClicks} />
+        <button onClick={() => setShowAll(!showAll)}>
+          show {showAll ? "important" : "all"}
+        </button>
       </div>
+      <ul>
+        {notesToShow.map((note) => (
+          <Note key={note.id} note={note} />
+        ))}
+      </ul>
+      <form onSubmit={addNote}>
+        <input value={newNote} onChange={handleNoteChange} />
+        <button type="submit">save</button>
+      </form>
     </div>
   );
 };
 
-ReactDOM.render(<App />, document.getElementById("root"));
+const notes = [
+  {
+    id: 1,
+    content: "HTML is easy",
+    date: "2019-05-30T17:30:31.098Z",
+    important: true,
+  },
+  {
+    id: 2,
+    content: "Browser can execute only Javascript",
+    date: "2019-05-30T18:39:34.091Z",
+    important: false,
+  },
+  {
+    id: 3,
+    content: "GET and POST are the most important methods of HTTP protocol",
+    date: "2019-05-30T19:20:14.298Z",
+    important: true,
+  },
+];
+
+ReactDOM.render(<App notes={notes} />, document.getElementById("root"));
