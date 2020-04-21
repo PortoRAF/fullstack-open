@@ -2,8 +2,8 @@ import React from "react";
 import Flag from "./Flag";
 import Language from "./Language";
 
-const MatchedCountry = ({ data }) => {
-  const { name, capital, population, languages, flag } = data[0];
+const MatchedCountry = ({ country }) => {
+  const { name, capital, population, languages, flag } = country[0];
 
   return (
     <div>

@@ -20,6 +20,10 @@ const App = () => {
     setNewCountry(event.target.value);
   };
 
+  const handleClick = (country) => {
+    setNewCountry(country.name);
+  };
+
   // When search field is empty, set list to undefined, otherwise
   // filteredCountries would contain every entries from countries list
   const filteredCountries =
@@ -40,7 +44,7 @@ const App = () => {
           name="findCountry"
         />
       </form>
-      <Results data={filteredCountries} />
+      <Results countries={filteredCountries} onClick={handleClick} />
     </div>
   );
 };
