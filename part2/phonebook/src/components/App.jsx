@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import personsService from "../services/Persons";
+import Notification from "./Notification";
 import PersonForm from "./PersonForm";
 import Persons from "./Persons";
 import Filter from "./Filter";
@@ -9,12 +10,23 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [showWith, setShowWith] = useState("");
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     personsService
       .getAll()
       .then((initialPersons) => setPersons(initialPersons));
   }, []);
+
+  const showMessage = (message, success) => {
+    // if (success) {
+    setSuccess(success);
+    setAlertMessage(message);
+    setTimeout(() => setAlertMessage(null), 3000);
+    // } else {
+    // }
+  };
 
   const addName = (event) => {
     event.preventDefault();
@@ -36,13 +48,21 @@ const App = () => {
             );
             setNewName("");
             setNewNumber("");
-          });
+            showMessage(`Added ${returnedPerson.name}`, true);
+          })
+          .catch(() =>
+            showMessage(
+              `${changedPerson.name} has already been removed from server`,
+              false
+            )
+          );
       }
     } else {
       personsService.create(newPerson).then((returnedPerson) => {
         setPersons(persons.concat(returnedPerson));
         setNewName("");
         setNewNumber("");
+        showMessage(`Added ${returnedPerson.name}`, true);
       });
     }
   };
@@ -65,9 +85,9 @@ const App = () => {
 
   const handleDeleteButton = (person) => {
     if (window.confirm("Delete " + person.name + "?")) {
-      personsService.remove(person.id).then((returnedPerson) => {
-        console.log(returnedPerson);
+      personsService.remove(person.id).then(() => {
         setPersons(persons.filter((p) => p.id !== person.id));
+        showMessage("Contact successfully removed", true);
       });
     }
   };
@@ -75,6 +95,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={alertMessage} success={success} />
       <h2>Add new contact</h2>
       <PersonForm
         onSubmit={addName}
