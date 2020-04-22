@@ -1,10 +1,13 @@
 const express = require("express");
+const cors = require("cors");
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
+app.use(express.static("build"));
 
 let notes = [
   {
@@ -75,6 +78,18 @@ app.post("/api/notes", (req, res) => {
   notes = notes.concat(note);
 
   res.json(note);
+});
+
+app.put("/api/notes/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const note = notes.find((n) => n.id === id);
+
+  if (note) {
+    notes = notes.filter((n) => n.id !== id).concat(req.body);
+    res.json(req.body);
+  } else {
+    res.status(404).send({ error: "note not found" });
+  }
 });
 
 app.listen(PORT, () => {
