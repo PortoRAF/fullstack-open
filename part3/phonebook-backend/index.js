@@ -1,23 +1,19 @@
 const express = require("express");
+const cors = require("cors");
 const morgan = require("morgan");
 
-const app = express();
+const PORT = process.env.PORT || 3001;
 
-const requestLogger = (req, res, next) => {
-  console.log("Method:", req.method);
-  console.log("Path:", req.path);
-  console.log("Body:", req.body);
-  console.log("---");
-  next();
-};
+const app = express();
 
 morgan.token("body", (req) => (req.body.name ? JSON.stringify(req.body) : " "));
 
 app.use(express.json());
-
+app.use(cors());
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
 );
+app.use(express.static("build"));
 
 const MAX_CONTACTS = 10;
 
@@ -132,7 +128,5 @@ const unknownEndpoint = (req, res) => {
 };
 
 app.use(unknownEndpoint);
-
-const PORT = 3001;
 
 app.listen(PORT, () => console.log(`Server running at port ${PORT}`));
