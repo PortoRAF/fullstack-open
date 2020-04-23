@@ -14,7 +14,11 @@ GET http://localhost:3001/api/persons/5ea0c39b3b08a53d743da88e
 
 ###
 
-GET http://localhost:3001/api/persons/5
+GET http://localhost:3001/api/persons/5ea0c39b3b08a53d7411118e
+
+###
+
+GET http://localhost:3001/api/persons/5ea
 
 ###
 

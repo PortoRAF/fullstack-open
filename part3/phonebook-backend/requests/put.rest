@@ -1,0 +1,46 @@
+PUT http://localhost:3001/api/persons/5ea12a3509e30c1f74eeaa3a
+Content-Type: application/json
+
+{
+  "name": "Giordano Bruno",
+  "number": "999-999-999"
+}
+
+###
+
+PUT http://localhost:3001/api/persons/5ea12a3509e30c1f74111111
+Content-Type: application/json
+
+{
+  "name": "Giordano Bruno",
+  "number": "999-999-999"
+}
+
+###
+
+PUT http://localhost:3001/api/persons/5ea
+Content-Type: application/json
+
+{
+  "name": "Giordano Bruno",
+  "number": "999-999-999"
+}
+
+###
+PUT http://localhost:3001/api/persons/5ea12a3509e30c1f74eeaa3a
+Content-Type: application/json
+
+{
+  "name": "",
+  "number": "55-44-98765"
+}
+
+###
+
+PUT http://localhost:3001/api/persons/5ea12a3509e30c1f74eeaa3a
+Content-Type: application/json
+
+{
+  "name": "Giordano Bruno",
+  "number": ""
+}
