@@ -3,6 +3,8 @@ const cors = require("cors");
 const morgan = require("morgan");
 const Note = require("./models/note");
 
+morgan.token("body", (req) => (req.body.name ? JSON.stringify(req.body) : " "));
+
 const app = express();
 
 app.use(cors());
@@ -38,57 +40,53 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/notes", (req, res) => {
-  Note.find({}).then((notes) => {
-    res.json(notes.map((note) => note.toJSON()));
-  });
+  Note.find({})
+    .then((notes) => res.json(notes))
+    .catch((error) => next(error));
 });
 
 app.get("/api/notes/:id", (req, res, next) => {
   Note.findById(req.params.id)
     .then((note) => {
-      if (note) {
-        res.json(note);
-      } else {
-        res.status(404).end();
-      }
+      note ? res.json(note) : res.status(404).end();
     })
     .catch((error) => next(error));
 });
 
-app.delete("/api/notes/:id", (req, res) => {
+app.delete("/api/notes/:id", (req, res, next) => {
   Note.findByIdAndDelete(req.params.id)
     .then((result) => res.status(204).end())
     .catch((error) => next(error));
 });
 
-app.post("/api/notes", (req, res) => {
-  if (!req.body.content) {
-    return res.status(400).json({ error: "content missing" });
-  }
-
+app.post("/api/notes", (req, res, next) => {
   const note = new Note({
     content: req.body.content,
     important: req.body.important || false,
     date: new Date(),
   });
 
-  note.save().then((savedNote) => {
-    res.json(savedNote);
-  });
+  note
+    .save()
+    .then((savedNote) => {
+      res.json(savedNote);
+    })
+    .catch((error) => next(error));
 });
 
-app.put("/api/notes/:id", (req, res) => {
-  if (!req.body.content) {
-    return res.status(400).json({ error: "content missing" });
-  }
-
+app.put("/api/notes/:id", (req, res, next) => {
   const note = {
     content: req.body.content,
     important: req.body.important || false,
   };
 
-  Note.findByIdAndUpdate(req.params.id, note, { new: true })
-    .then((updatedNote) => res.json(updatedNote))
+  Note.findByIdAndUpdate(req.params.id, note, {
+    new: true,
+    runValidators: true,
+  })
+    .then((updatedNote) =>
+      updatedNote ? res.json(updatedNote) : res.status(404).end()
+    )
     .catch((error) => next(error));
 });
 
@@ -101,6 +99,8 @@ const errorHandler = (error, req, res, next) => {
 
   if (error.name === "CastError") {
     return res.status(400).send({ error: "bad formatted id" });
+  } else if (error.name === "ValidationError") {
+    return res.status(400).json({ error: error.message });
   }
 
   next(error);
