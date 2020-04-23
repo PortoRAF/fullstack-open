@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-
-const PORT = process.env.PORT || 3001;
+const Note = require("./models/note");
 
 const app = express();
 
@@ -35,63 +34,57 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/notes", (req, res) => {
-  res.json(notes);
+  Note.find({}).then((notes) => {
+    res.json(notes.map((note) => note.toJSON()));
+  });
 });
 
 app.get("/api/notes/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const note = notes.find((note) => note.id === id);
-
-  if (note) {
-    return res.send(note);
-  } else {
-    return res.status(404).end();
-  }
+  Note.findById(req.params.id)
+    .then((note) => res.json(note))
+    .catch((error) => res.status(404).end());
 });
 
 app.delete("/api/notes/:id", (req, res) => {
-  const id = Number(req.params.id);
-  notes = notes.filter((note) => note.id !== id);
-  res.status(204).end();
+  Note.findByIdAndDelete(req.params.id)
+    .then((response) =>
+      res.status(204).send(`deleted ${response.deletedCount}`)
+    )
+    .catch((error) => res.status(404).end());
 });
-
-const generateId = () => {
-  const maxId = notes.length > 0 ? Math.max(...notes.map((n) => n.id)) : 0;
-
-  return maxId + 1;
-};
 
 app.post("/api/notes", (req, res) => {
   if (!req.body.content) {
-    return res.status(400).json({
-      error: "content missing",
-    });
+    return res.status(400).json({ error: "content missing" });
+  }
+
+  const note = new Note({
+    content: req.body.content,
+    important: req.body.important || false,
+    date: new Date(),
+  });
+
+  note.save().then((savedNote) => {
+    res.json(savedNote);
+  });
+});
+
+app.put("/api/notes/:id", (req, res) => {
+  if (!req.body.content) {
+    return res.status(400).json({ error: "content missing" });
   }
 
   const note = {
     content: req.body.content,
     important: req.body.important || false,
-    date: new Date(),
-    id: generateId(),
   };
 
-  notes = notes.concat(note);
-
-  res.json(note);
+  Note.findByIdAndUpdate(req.params.id, note, { new: true })
+    .then((updatedNote) => res.json(updatedNote))
+    .catch((error) => res.status(404).end());
 });
 
-app.put("/api/notes/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const note = notes.find((n) => n.id === id);
-
-  if (note) {
-    notes = notes.filter((n) => n.id !== id).concat(req.body);
-    res.json(req.body);
-  } else {
-    res.status(404).send({ error: "note not found" });
-  }
-});
-
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

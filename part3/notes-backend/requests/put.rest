@@ -1,0 +1,36 @@
+PUT http://localhost:3001/api/notes/5ea0d7b16a688b3b80d5911a
+Content-Type: application/json
+
+{
+  "content": "Updated note",
+  "important": true
+}
+
+###
+
+PUT http://localhost:3001/api/notes/5ea0d7b16a688b3b80d5911a
+Content-Type: application/json
+
+{
+  "content": "",
+  "important": true
+}
+
+###
+
+PUT http://localhost:3001/api/notes/5ea0d7b16a688b3b80d5911a
+Content-Type: application/json
+
+{
+  "content": "Updated note"  
+}
+
+###
+
+PUT http://localhost:3001/api/notes/5
+Content-Type: application/json
+
+{
+  "content": "Updated note",
+  "important": true
+}
