@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-require('../services/mongodb')
 
 const noteSchema = new mongoose.Schema({
   content: {
