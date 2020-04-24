@@ -45,7 +45,7 @@ const App = () => {
             );
             setNewName("");
             setNewNumber("");
-            showMessage(`Added ${returnedPerson.name}`, true);
+            showMessage(`Updated ${returnedPerson.name}`, true);
           })
           .catch((error) => showMessage(error.response.data.error, false));
       }

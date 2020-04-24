@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-require("../services/mongodb");
+const mongoose = require('mongoose')
+require('../services/mongodb')
 
 const noteSchema = new mongoose.Schema({
   content: {
@@ -12,16 +12,16 @@ const noteSchema = new mongoose.Schema({
     required: true,
   },
   important: Boolean,
-});
+})
 
-noteSchema.set("toJSON", {
+noteSchema.set('toJSON', {
   transform: (document, returnedDocument) => {
-    returnedDocument.id = returnedDocument._id.toString();
-    delete returnedDocument._id;
-    delete returnedDocument.__v;
+    returnedDocument.id = returnedDocument._id.toString()
+    delete returnedDocument._id
+    delete returnedDocument.__v
   },
-});
+})
 
-const Note = mongoose.model("Note", noteSchema);
+const Note = mongoose.model('Note', noteSchema)
 
-module.exports = Note;
+module.exports = Note

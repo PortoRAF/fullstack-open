@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator");
-require("../services/mongodb");
+const mongoose = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator')
+require('../services/mongodb')
 
 const personSchema = new mongoose.Schema({
   name: {
@@ -14,18 +14,18 @@ const personSchema = new mongoose.Schema({
     required: true,
     minlength: 8,
   },
-});
+})
 
-personSchema.plugin(uniqueValidator);
+personSchema.plugin(uniqueValidator)
 
-personSchema.set("toJSON", {
+personSchema.set('toJSON', {
   transform: (doc, ret) => {
-    ret.id = ret._id.toString();
-    delete ret._id;
-    delete ret.__v;
+    ret.id = ret._id.toString()
+    delete ret._id
+    delete ret.__v
   },
-});
+})
 
-const Person = mongoose.model("Person", personSchema);
+const Person = mongoose.model('Person', personSchema)
 
-module.exports = Person;
+module.exports = Person
