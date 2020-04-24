@@ -55,21 +55,17 @@ app.get("/info", (req, res, next) => {
   });
 });
 
-app.get("/api/persons", (req, res) => {
-  Person.find({}).then((persons) => {
-    res.json(persons);
-  });
+app.get("/api/persons", (req, res, next) => {
+  Person.find({})
+    .then((persons) => {
+      res.json(persons);
+    })
+    .catch((error) => next(error));
 });
 
 app.get("/api/persons/:id", (req, res, next) => {
   Person.findById(req.params.id)
-    .then((person) => {
-      if (person) {
-        res.json(person);
-      } else {
-        res.status(404).end();
-      }
-    })
+    .then((person) => (person ? res.json(person) : res.status(404).end()))
     .catch((error) => next(error));
 });
 
@@ -80,54 +76,31 @@ app.delete("/api/persons/:id", (req, res, next) => {
 });
 
 app.post("/api/persons", (req, res, next) => {
-  if (!req.body.name) {
-    return res.status(400).send({
-      error: "name missing",
-    });
-  }
-  if (!req.body.number) {
-    return res.status(400).send({
-      error: "number missing",
-    });
-  }
-  Person.find({ name: req.body.name }).then((persons) => {
-    if (persons.length > 0) {
-      res.status(400).send("name must be unique");
-    } else {
-      const person = new Person({
-        name: req.body.name,
-        number: req.body.number,
-      });
-      person.save().then((person) => res.send(person));
-    }
+  const person = new Person({
+    name: req.body.name,
+    number: req.body.number,
   });
+
+  person
+    .save()
+    .then((person) => res.send(person))
+    .catch((error) => next(error));
 });
 
 app.put("/api/persons/:id", (req, res, next) => {
-  if (!req.body.name) {
-    return res.status(400).send({
-      error: "name missing",
-    });
-  }
-  if (!req.body.number) {
-    return res.status(400).send({
-      error: "number missing",
-    });
-  }
-
   const person = {
     name: req.body.name,
     number: req.body.number,
   };
 
-  Person.findByIdAndUpdate(req.params.id, person, { new: true })
-    .then((updatedPerson) => {
-      if (updatedPerson) {
-        res.json(updatedPerson);
-      } else {
-        res.status(404).end();
-      }
-    })
+  Person.findByIdAndUpdate(req.params.id, person, {
+    new: true,
+    runValidators: true,
+    context: "query",
+  })
+    .then((updatedPerson) =>
+      updatedPerson ? res.json(updatedPerson) : res.status(404).end()
+    )
     .catch((error) => next(error));
 });
 
@@ -139,7 +112,9 @@ const errorHandler = (error, req, res, next) => {
   console.error(error.message);
 
   if (error.name === "CastError") {
-    res.status(400).send({ error: "bad formatted id" });
+    return res.status(400).send({ error: "bad formatted id" });
+  } else if (error.name === "ValidationError") {
+    return res.status(400).send({ error: error.message });
   }
 
   next(error);

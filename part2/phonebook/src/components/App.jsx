@@ -20,12 +20,9 @@ const App = () => {
   }, []);
 
   const showMessage = (message, success) => {
-    // if (success) {
     setSuccess(success);
     setAlertMessage(message);
     setTimeout(() => setAlertMessage(null), 3000);
-    // } else {
-    // }
   };
 
   const addName = (event) => {
@@ -50,20 +47,18 @@ const App = () => {
             setNewNumber("");
             showMessage(`Added ${returnedPerson.name}`, true);
           })
-          .catch(() =>
-            showMessage(
-              `${changedPerson.name} has already been removed from server`,
-              false
-            )
-          );
+          .catch((error) => showMessage(error.response.data.error, false));
       }
     } else {
-      personsService.create(newPerson).then((returnedPerson) => {
-        setPersons(persons.concat(returnedPerson));
-        setNewName("");
-        setNewNumber("");
-        showMessage(`Added ${returnedPerson.name}`, true);
-      });
+      personsService
+        .create(newPerson)
+        .then((returnedPerson) => {
+          setPersons(persons.concat(returnedPerson));
+          setNewName("");
+          setNewNumber("");
+          showMessage(`Added ${returnedPerson.name}`, true);
+        })
+        .catch((error) => showMessage(error.response.data.error, false));
     }
   };
 

@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "name": "Giordano Bruno",
-  "number": "55-44-98765"
+  "number": "45-78-97654"
 }
 
 ###
@@ -12,7 +12,7 @@ POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-  "name": "",
+  "name": "Al",
   "number": "55-44-98765"
 }
 
@@ -23,5 +23,5 @@ Content-Type: application/json
 
 {
   "name": "Giordano Bruno",
-  "number": ""
+  "number": "123"
 }
