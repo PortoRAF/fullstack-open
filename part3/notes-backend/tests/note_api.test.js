@@ -10,6 +10,7 @@ const Note = require('../models/note')
 
 const notesUrl = '/api/notes'
 const usersUrl = '/api/users'
+const loginUrl = '/api/login'
 
 beforeEach(async () => {
   await Note.deleteMany({})
@@ -73,8 +74,24 @@ describe('viewing a specific note', () => {
   })
 })
 
+const validToken = async (username, password) => {
+  const user = { username, password }
+  const loggedIn = await api
+    .post(loginUrl)
+    .send(user)
+
+  return loggedIn.body.token
+}
+
 describe('addition of a new note', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+    await helper.createUser('HCopter', 'sekret')
+  })
+
   test('succeeds with valid data', async () => {
+    const token = await validToken('HCopter', 'sekret')
+
     const newNote = {
       content: 'async/await simplifies making async calls',
       important: true
@@ -82,6 +99,7 @@ describe('addition of a new note', () => {
 
     await api
       .post(notesUrl)
+      .set('Authorization', `bearer ${token}`)
       .send(newNote)
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -94,17 +112,40 @@ describe('addition of a new note', () => {
   })
 
   test('fails with status code 400 if data is invalid', async () => {
+    const token = await validToken('HCopter', 'sekret')
+
     const newNote = {
       important: true
     }
 
-    await api.post(notesUrl)
+    await api
+      .post(notesUrl)
+      .set('Authorization', `bearer ${token}`)
       .send(newNote)
       .expect(400)
 
     const notesAtEnd = await helper.notesInDb()
 
     expect(notesAtEnd).toHaveLength(helper.initialNotes.length)
+  })
+
+  test('fails with status code 401 if token is invalid or missing', async () => {
+    const token = await validToken('HCopter', 'sekret')
+
+    const newNote = {
+      content: 'users need valid token to authenticate',
+      important: true
+    }
+
+    await api.post(notesUrl)
+      .set('Authorization', `bearer ${''}`)
+      .send(newNote)
+      .expect(401)
+
+    await api.post(notesUrl)
+      .set('Authorization', `bearer ${token.substring(10)}`)
+      .send(newNote)
+      .expect(401)
   })
 })
 
@@ -176,6 +217,56 @@ describe('when there is initially one user in db', () => {
 
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(usersAtStart.length)
+  })
+})
+
+describe('user login', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({ username: 'HCopter', passwordHash })
+
+    await user.save()
+  })
+
+  test('succeeds with valid username/password and generates auth token', async () => {
+    const user = {
+      username: 'HCopter',
+      password: 'sekret'
+    }
+
+    const loggedIn = await api
+      .post(loginUrl)
+      .send(user)
+      .expect(200)
+
+    expect(loggedIn.body.username).toEqual(user.username)
+    expect(loggedIn.body).toHaveProperty('token')
+  })
+
+  test('fails with invalid username', async () => {
+    const user = {
+      username: 'NotRegistered',
+      password: 'sekret'
+    }
+
+    await api
+      .post(loginUrl)
+      .send(user)
+      .expect(401)
+  })
+
+  test('fails with invalid password for existing user', async () => {
+    const user = {
+      username: 'HCopter',
+      password: 'WrongPassword'
+    }
+
+    await api
+      .post(loginUrl)
+      .send(user)
+      .expect(401)
   })
 })
 
