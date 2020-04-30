@@ -1,12 +1,15 @@
+const bcrypt = require('bcrypt')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const helper = require('./test_helper')
 
 const api = supertest(app)
 
-const baseUrl = ('/api/blogs')
+const blogUrl = ('/api/blogs')
+const userUrl = ('/api/users')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -20,19 +23,19 @@ beforeEach(async () => {
 describe('already existing blogs', () => {
   test('blogs are returned as JSON', async () => {
     await api
-      .get(baseUrl)
+      .get(blogUrl)
       .expect(200)
       .expect('Content-Type', /application\/json/)
   })
 
   test('all blogs are returned', async () => {
-    const response = await api.get(baseUrl)
+    const response = await api.get(blogUrl)
 
     expect(response.body).toHaveLength(helper.initialBlogs.length)
   })
 
   test('unique identifier property of the blog post is named id', async () => {
-    const response = await api.get(baseUrl)
+    const response = await api.get(blogUrl)
 
     expect(response.body[0].id).toBeDefined()
   })
@@ -48,12 +51,12 @@ describe('insertions of blogs in database', () => {
     })
 
     await api
-      .post(baseUrl)
+      .post(blogUrl)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const blogsAtEnd = await api.get(baseUrl)
+    const blogsAtEnd = await api.get(blogUrl)
     expect(blogsAtEnd.body).toHaveLength(helper.initialBlogs.length + 1)
 
     const contents = blogsAtEnd.body[2]
@@ -68,12 +71,12 @@ describe('insertions of blogs in database', () => {
     })
 
     await api
-      .post(baseUrl)
+      .post(blogUrl)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const blogsAtEnd = await api.get(baseUrl)
+    const blogsAtEnd = await api.get(blogUrl)
     expect(blogsAtEnd.body[2].likes).toBe(0)
   })
 
@@ -89,12 +92,12 @@ describe('insertions of blogs in database', () => {
     })
 
     await api
-      .post(baseUrl)
+      .post(blogUrl)
       .send(noTitle)
       .expect(400)
 
     await api
-      .post(baseUrl)
+      .post(blogUrl)
       .send(noAuthor)
       .expect(400)
   })
@@ -102,11 +105,11 @@ describe('insertions of blogs in database', () => {
 
 describe('updating a blog', () => {
   test('succeeds with valid data', async () => {
-    const blogs = await api.get(baseUrl)
+    const blogs = await api.get(blogUrl)
     const blogToUpdateId = blogs.body[0].id
 
     const updatedBlog = await api
-      .put(`${baseUrl}/${blogToUpdateId}`)
+      .put(`${blogUrl}/${blogToUpdateId}`)
       .send({ likes: 100 })
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -115,19 +118,19 @@ describe('updating a blog', () => {
   })
 
   test('fails and returns status code 400 if properties author and title are empty', async () => {
-    const blogs = await api.get(baseUrl)
+    const blogs = await api.get(blogUrl)
     const blogToUpdateId = blogs.body[0].id
 
     const noTitle = new Blog({ title: '' })
     const noAuthor = new Blog({ author: '' })
 
     await api
-      .put(`${baseUrl}/${blogToUpdateId}`)
+      .put(`${blogUrl}/${blogToUpdateId}`)
       .send(noTitle)
       .expect(400)
 
     await api
-      .put(`${baseUrl}/${blogToUpdateId}`)
+      .put(`${blogUrl}/${blogToUpdateId}`)
       .send(noAuthor)
       .expect(400)
   })
@@ -136,7 +139,7 @@ describe('updating a blog', () => {
     const nonExistingId = await helper.nonExistingId()
 
     await api
-      .put(`${baseUrl}/${nonExistingId}`)
+      .put(`${blogUrl}/${nonExistingId}`)
       .expect(404)
   })
 
@@ -144,22 +147,82 @@ describe('updating a blog', () => {
     const invalidId = 555
 
     await api
-      .put(`${baseUrl}/${invalidId}`)
+      .put(`${blogUrl}/${invalidId}`)
       .expect(400)
   })
 })
 
 describe('deletion of a note', () => {
   test('succeeds with status code 204 when id is valid', async () => {
-    const blogs = await api.get(baseUrl)
+    const blogs = await api.get(blogUrl)
     const blogToDeleteId = blogs.body[0].id
 
     await api
-      .delete(`${baseUrl}/${blogToDeleteId}`)
+      .delete(`${blogUrl}/${blogToDeleteId}`)
       .expect(204)
 
-    const blogsAtEnd = await api.get(baseUrl)
+    const blogsAtEnd = await api.get(blogUrl)
     expect(blogsAtEnd.body).toHaveLength(helper.initialBlogs.length - 1)
+  })
+})
+
+describe('creating user', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({ username: 'root', passwordHash })
+    await user.save()
+  })
+
+  test('with another user already in db', async () => {
+    const user = {
+      name: 'Kai B Rich',
+      username: 'KRich',
+      password: 'strong'
+    }
+
+    const newUser = await api
+      .post(userUrl)
+      .send(user)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    expect(newUser.body.username).toEqual(user.username)
+  })
+
+  test('with an already taken username should fail', async () => {
+    const user = {
+      username: 'root',
+      password: 'sekret'
+    }
+
+    await api
+      .post(userUrl)
+      .send(user)
+      .expect(400)
+  })
+
+  test('with invalid username and password should fail', async () => {
+    const invalidUsername = {
+      username: 'rt',
+      password: 'sekret'
+    }
+
+    const invalidPassword = {
+      username: 'userName',
+      password: 'st'
+    }
+
+    await api
+      .post(userUrl)
+      .send(invalidUsername)
+      .expect(400)
+
+    await api
+      .post(userUrl)
+      .send(invalidPassword)
+      .expect(400)
   })
 })
 

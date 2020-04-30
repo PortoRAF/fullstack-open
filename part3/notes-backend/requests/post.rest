@@ -9,11 +9,11 @@ content-type: application/json
 
 POST http://localhost:3001/api/notes
 content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJwb3J0byIsImlkIjoiNWVhYTFhNWI3MzZkY2EzODFjNTJhMmVlIiwiaWF0IjoxNTg4MjA5MjEwfQ.JKm5K66dP8b3H1me99iuYFh0qg3xGcxeh8PT-_G5U1U
 
 {
-    "content": "The existing code and tests need to be changed when user is added to system",
-    "important": true,
-    "userId": "5eaa1a5b736dca381c52a2ee"
+    "content": "Single Page Apps use token authentication",
+    "important": true
 }
 
 ###
@@ -34,5 +34,5 @@ content-type: application/json
 
 {
     "username": "rporto",
-    "password": "1q2w3e"
+    "password": "1q2w3e$"
 }
