@@ -11,6 +11,18 @@ POST http://localhost:3001/api/notes
 content-type: application/json
 
 {
-    "content": "lolol",
-    "important": true
+    "content": "The existing code and tests need to be changed when user is added to system",
+    "important": true,
+    "userId": "5eaa1a5b736dca381c52a2ee"
+}
+
+###
+
+POST http://localhost:3001/api/users
+content-type: application/json
+
+{
+    "username": "rporto",
+    "name": "Renato Porto",
+    "password": "1q2w3e$"
 }
