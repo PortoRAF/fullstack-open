@@ -19,14 +19,16 @@ const failureStyle = {
   borderColor: "red",
 }
 
-const Alert = ({ message, success }) => {
+const Notification = (props) => {
+  const { message, mode } = props.notification
+
   if (message === null) { return null }
 
-  if (success) {
+  if (mode === 'success') {
     return <div style={{ ...style, ...successStyle }}>{message}</div>
   } else {
     return <div style={{ ...style, ...failureStyle }}>{message}</div>
   }
 }
 
-export default Alert
+export default Notification

@@ -18,7 +18,8 @@ Router.get('/', auth, async (req, res, next) => {
       .populate('blogs', {
         title: 1,
         author: 1,
-        likes: 1
+        likes: 1,
+        url: 1
       })
       .execPopulate()
 
