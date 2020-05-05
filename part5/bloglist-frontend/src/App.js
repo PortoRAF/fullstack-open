@@ -23,7 +23,7 @@ const App = () => {
     try {
       const blogs = await blogService.getAll()
       setBlogs(blogs)
-    } catch {
+    } catch (error) {
       setNotification('could not load blogs')
     }
   }, [])
@@ -47,19 +47,19 @@ const App = () => {
       setUser(user)
       getBlogs()
       showMessage(`Successfully logged as ${user.username}`, 'success')
-    } catch {
+    } catch (error) {
       showMessage('wrong username or password')
     }
   }
 
-  const handleLogout = async (event) => {
+  const handleLogout = async () => {
     try {
       window.localStorage.removeItem('BloglistLoggedUser')
       setUser(null)
       blogService.setToken(null)
       setBlogs([])
       showMessage('successfully logged out', 'success')
-    } catch {
+    } catch (error) {
       showMessage('failed to logout')
     }
   }
@@ -71,7 +71,7 @@ const App = () => {
       const updatedBlogs = blogs.concat(newBlog)
       setBlogs(updatedBlogs)
       showMessage(`blog ${newBlog.title} by ${newBlog.author} added`, 'success')
-    } catch {
+    } catch (error) {
       showMessage('failed to add new blog')
     }
   }
@@ -83,7 +83,7 @@ const App = () => {
         (blog.id === newBlog.id) ? newBlog : blog)
       )
       setBlogs(updatedBlogs)
-    } catch {
+    } catch (error) {
       showMessage('unable to process \'like\'')
     }
   }
@@ -94,7 +94,7 @@ const App = () => {
       const updatedBlogs = blogs.filter(blog => blog.id !== blogObject.id)
       setBlogs(updatedBlogs)
       showMessage(`removed blog ${blogObject.title} by ${blogObject.author}`, 'success')
-    } catch {
+    } catch (error) {
       showMessage('unable to remove blog')
     }
   }
@@ -131,7 +131,9 @@ const App = () => {
 
   return (
     <div>
-      {Object.keys(notification).length === 0 ? null : <Notification notification={notification} />}
+      {Object.keys(notification).length === 0
+        ? null
+        : <Notification notification={notification} />}
       {user === null ? loginForm() : (
         <div>
           <h2>blogs</h2>
