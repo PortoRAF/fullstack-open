@@ -1,21 +1,22 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 
 const NoteForm = ({ createNote }) => {
   const [newNote, setNewNote] = useState('')
 
   const handleChange = (event) => {
-    setNewNote(event.target.value);
-  };
+    setNewNote(event.target.value)
+  }
 
   const addNote = (event) => {
-    event.preventDefault();
+    event.preventDefault()
     createNote({
       content: newNote,
       important: Math.random() > 0.5,
     })
 
     setNewNote('')
-  };
+  }
 
   return (
     <div>
@@ -26,6 +27,10 @@ const NoteForm = ({ createNote }) => {
       </form>
     </div>
   )
+}
+
+NoteForm.propTypes = {
+  createNote: PropTypes.func.isRequired
 }
 
 export default NoteForm

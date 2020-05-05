@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from "react";
-import Footer from "./Footer";
-import Note from "./Note";
-import Notification from "./Notification";
-import noteService from "../services/notes";
-import loginService from "../services/login"
+import React, { useState, useEffect } from 'react'
+import Footer from './Footer'
+import Note from './Note'
+import Notification from './Notification'
+import noteService from '../services/notes'
+import loginService from '../services/login'
 import Togglable from './Togglable'
 import LoginForm from './LoginForm'
 import NoteForm from './NoteForm'
 
 const App = () => {
-  const [notes, setNotes] = useState([]);
-  const [showAll, setShowAll] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [notes, setNotes] = useState([])
+  const [showAll, setShowAll] = useState(true)
+  const [errorMessage, setErrorMessage] = useState(null)
   const [user, setUser] = useState(null)
 
   const getNotes = () => {
     noteService.getAll().then((initialNotes) => {
-      setNotes(initialNotes);
-    });
+      setNotes(initialNotes)
+    })
   }
 
   useEffect(() => {
@@ -35,32 +35,34 @@ const App = () => {
     noteService
       .create(noteObject)
       .then((returnedNote) => {
-        setNotes(notes.concat(returnedNote));
-      });
-  };
+        setNotes(notes.concat(returnedNote))
+      })
+  }
 
   const toggleImportanceOf = (id) => {
-    const note = notes.find((note) => note.id === id);
-    const changedNote = { ...note, important: !note.important };
+    const note = notes.find((note) => note.id === id)
+    const changedNote = { ...note, important: !note.important }
 
     noteService
       .update(id, changedNote)
       .then((returnedNote) => {
         // Copy items from the old array except the newly updated
-        setNotes(notes.map((note) => (note.id !== id ? note : returnedNote)));
+        setNotes(notes.map((note) => (note.id !== id ? note : returnedNote)))
       })
-      .catch((error) => {
+      .catch(() => {
         setErrorMessage(
           `Note '${note.content}' was already removed from server`
-        );
+        )
         setTimeout(() => {
-          setErrorMessage(null);
-        }, 5000);
-        setNotes(notes.filter((n) => n.id !== id));
-      });
-  };
+          setErrorMessage(null)
+        }, 5000)
+        setNotes(notes.filter((n) => n.id !== id))
+      })
+  }
 
-  const notesToShow = showAll ? notes : notes.filter((note) => note.important);
+  const notesToShow = showAll
+    ? notes
+    : notes.filter((note) => note.important)
 
   const handleLogin = async (credentials) => {
     const { username, password } = credentials
@@ -115,7 +117,7 @@ const App = () => {
           <div>
             <p>
               {user.name} logged in
-                <button onClick={handleLogout}>logout</button>
+              <button onClick={handleLogout}>logout</button>
             </p>
             {noteForm()}
             <ul>
@@ -128,14 +130,14 @@ const App = () => {
               ))}
             </ul>
             <button onClick={() => setShowAll(!showAll)}>
-              show {showAll ? "important" : "all"}
+              show {showAll ? 'important' : 'all'}
             </button>
           </div>
         )
       }
       <Footer />
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App
