@@ -10,13 +10,7 @@ const setToken = (newToken) => {
 
 const getAll = () => {
   const request = axios.get(baseUrl)
-  const nonExisting = {
-    id: 10000,
-    content: 'This note is not saved to server',
-    date: '2020-04-21T00:00:00.000Z',
-    important: true,
-  }
-  return request.then((response) => response.data.concat(nonExisting))
+  return request.then((response) => response.data)
 }
 
 const create = async (newObject) => {

@@ -81,7 +81,7 @@ const App = () => {
       setErrorMessage('Wrong credentials')
       setTimeout(() => {
         setErrorMessage(null)
-      }, 3000)
+      }, 5000)
     }
   }
 
