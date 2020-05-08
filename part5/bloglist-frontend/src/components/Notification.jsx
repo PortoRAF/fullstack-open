@@ -27,13 +27,13 @@ const Notification = ({ notification }) => {
 
   if (mode === 'success') {
     return (
-      <div style={{ ...style, ...successStyle }}>
+      <div className='success' style={{ ...style, ...successStyle }}>
         {message}
       </div>
     )
   } else {
     return (
-      <div style={{ ...style, ...failureStyle }}>
+      <div className='error' style={{ ...style, ...failureStyle }}>
         {message}
       </div>
     )
